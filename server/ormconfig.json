@@ -2,9 +2,9 @@
    "type": "postgres",
    "host": "localhost",
    "port": 5432,
-   "username": "test",
-   "password": "test",
-   "database": "test",
+   "username": "app_user",
+   "password": "pass",
+   "database": "jwt-auth",
    "synchronize": true,
    "logging": false,
    "entities": [
