@@ -1,29 +1,36 @@
-import { ApolloServer } from 'apollo-server-express';
-import cookieParser from 'cookie-parser';
-import "dotenv/config";
-import express from 'express';
-import { verify } from 'jsonwebtoken';
-import "reflect-metadata";
-import { buildSchema } from 'type-graphql';
-import { createConnection } from 'typeorm';
-import { createAccessToken, createRefreshToken } from './auth';
-import { User } from './entity/User';
-import { sendRefreshToken } from './sendRefreshToken';
-import { UserResolver } from './UserResolver';
+import { ApolloServer } from 'apollo-server-express'
+import cookieParser from 'cookie-parser'
+import cors from 'cors'
+import "dotenv/config"
+import express from 'express'
+import { verify } from 'jsonwebtoken'
+import "reflect-metadata"
+import { buildSchema } from 'type-graphql'
+import { createConnection } from 'typeorm'
+import { createAccessToken, createRefreshToken } from './auth'
+import { User } from './entity/User'
+import { sendRefreshToken } from './sendRefreshToken'
+import { UserResolver } from './UserResolver'
 
 (async () => {
     const app = express()
+    const APP_PORT = 4000
+    app.use(cors({
+        credentials: true,
+        origin: 'http://localhost:3000'
+    }))
     app.use(cookieParser())
 
     app.post('/refresh_token', async (req, res) => {
         const token = req.cookies.jid
+        const { REFRESH_TOKEN_SECRET } = process.env
         if (!token) {
             return res.send({ ok: false, accessToken: '' })
         }
         let payload = null;
 
         try {
-            payload = verify(token, process.env.REFRESH_TOKEN_SECRET!) as any
+            payload = verify(token, REFRESH_TOKEN_SECRET!) as any
         } catch (err){
             console.log(err)
             return res.send({ ok: false, accessToken: '' })
@@ -53,8 +60,8 @@ import { UserResolver } from './UserResolver';
         context: ({ req, res }) => ({ req, res })
     })
 
-    apolloServer.applyMiddleware({ app })
-    app.listen(4000, () => {
-        console.log('express server started')
+    apolloServer.applyMiddleware({ app, cors: false })
+    app.listen(APP_PORT, () => {
+        console.log(`express server started`)
     })
 })()
