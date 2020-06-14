@@ -4,7 +4,9 @@ import { useByeQuery } from "../generated/graphql"
 interface Props {}
 
 export const Bye: React.FC<Props> = () => {
-    const { data, error, loading } = useByeQuery()
+    const { data, error, loading } = useByeQuery({
+        fetchPolicy: 'network-only'
+    })
     
     if (loading) {
         return <h2>Loading...</h2>
